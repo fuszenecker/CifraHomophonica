@@ -15,7 +15,6 @@ fn text_to_stat(file_name: &str) -> std::io::Result<HashMap<char, usize>> {
 
     for line in reader.lines() {
         let chars = line?;
-        println!("{}", chars);
 
         for (_, character) in chars.chars().enumerate() {
             *frequencies.entry(character.clone()).or_insert(0) += 1;
