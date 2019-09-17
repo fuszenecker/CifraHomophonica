@@ -23,23 +23,24 @@ fn text_to_stat(file_name: &str) -> std::io::Result<HashMap<char, usize>> {
     return Ok(frequencies);
 }
 
+
 fn main() {
     use std::env;
-    let  default_size: &'static str = "20";
+    const DEFAULT_SIZE: &'static str = "20";
 
     println!("Salve, usator! Cifra Homomorphica te salutat.");
 
     let args: Vec<String> = env::args().collect();
 
-    let (file_name, x, y) = match args.len() {
+    let (file_name, table_width, table_height): (&str, &str, &str) = match args.len() {
         0 | 1 => {
             println!("Necesse est dare (ut argumentum primum) nomen eius ducumenti quod basis calculationis frequentiae litterarum sit.");
             process::exit(100);
         },
 
-        2 => (&args[1], &std::from(default_size), &std::from(default_size)),
+        2 => (&args[1], &DEFAULT_SIZE, &DEFAULT_SIZE),
         3 => (&args[1], &args[2], &args[2]),
-        4 => (&args[1], &args[2], &args[3])
+        4 | _ => (&args[1], &args[2], &args[3]),
     };
 
     let frequencies = text_to_stat(&file_name);
