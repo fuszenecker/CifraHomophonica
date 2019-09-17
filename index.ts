@@ -1,3 +1,5 @@
+import { createReadStream } from "fs";
+
 console.log("Salve, usator! Cifra Homomorphica te salutat.")
 
 function parse_args(args: string[]) {
@@ -33,4 +35,41 @@ function parse_args(args: string[]) {
     return { fileName, tableWidth, tableHeight };
 }
 
+function textToStat(fileName: string, onDoneCallback) {
+    const charsToSkip = ["\n", "\r", "\t"]
+
+    const stream = createReadStream(fileName)
+    stream.setEncoding("utf-8")
+
+    let frequencies = new Map<string, number>()
+
+    stream.on("open", listener => {
+        console.debug(`Apertum est documentum processandum cuius nomen est ${fileName}`)
+    })
+
+    stream.on("data", (data: string) => {
+        for (let char of data)
+        {
+            let upperCaseChar = char.toUpperCase()
+
+            if (!charsToSkip.includes(upperCaseChar))
+                frequencies.set(upperCaseChar, (frequencies.has(upperCaseChar) ? frequencies.get(upperCaseChar) : 0) + 1)
+        }
+    })
+
+    stream.on("close", () => { onDoneCallback(frequencies) })
+}
+
+function generateTables(frequencies: Map<string, number>) {
+    console.log("")
+    console.log("Statistica litterarum documenti:")
+    console.log("--------------------------------")
+    console.log("")
+
+    frequencies.forEach((value, key) =>
+        console.log(`${key} --> ${value}`)
+    )
+}
+
 let configuration = parse_args(process.argv)
+textToStat(configuration.fileName, generateTables)
