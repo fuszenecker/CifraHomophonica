@@ -1,4 +1,3 @@
-use std::env;
 use std::collections::HashMap;
 
 use std::process;
@@ -25,20 +24,28 @@ fn text_to_stat(file_name: &str) -> std::io::Result<HashMap<char, usize>> {
 }
 
 fn main() {
+    use std::env;
+    let  default_size: &'static str = "20";
+
     println!("Salve, usator! Cifra Homomorphica te salutat.");
 
     let args: Vec<String> = env::args().collect();
 
-    if args.len() >= 2 {
-        let filename = &args[1];
-        let frequencies = text_to_stat(&filename);
+    let (file_name, x, y) = match args.len() {
+        0 | 1 => {
+            println!("Necesse est dare (ut argumentum primum) nomen eius ducumenti quod basis calculationis frequentiae litterarum sit.");
+            process::exit(100);
+        },
 
-        match frequencies {
-            Ok(freqs) => println!("Frequentia littararum: {:?}", freqs),
-            Err(error) => println!("Frequenciam littararum calculare non possum, quia {}", error)
-        }
-    } else {
-        println!("Necesse est dare (ut argumentum primum) nomen eius ducumenti quod basis calculationis frequentiae litterarum sit.");
-        process::exit(100);
+        2 => (&args[1], &std::from(default_size), &std::from(default_size)),
+        3 => (&args[1], &args[2], &args[2]),
+        4 => (&args[1], &args[2], &args[3])
+    };
+
+    let frequencies = text_to_stat(&file_name);
+
+    match frequencies {
+        Ok(freqs) => println!("Frequentia littararum: {:?}", freqs),
+        Err(error) => println!("Frequenciam littararum calculare non possum, quia {}", error)
     }
 }
