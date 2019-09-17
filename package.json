@@ -2,9 +2,10 @@
   "name": "cifrahomophonica",
   "version": "1.0.0",
   "description": "Cifra homophonica est metdodus litterae obfuscandae.\r Hoc repositorium programmaturam quae tabulam homophicicam generare potest in linqua Rust scriptam cohibet.",
-  "main": "index.js",
+  "main": "out/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node out/index.js"
   },
   "repository": {
     "type": "git",
@@ -18,5 +19,8 @@
   "homepage": "https://github.com/fuszenecker/CifraHomophonica#readme",
   "devDependencies": {
     "typescript": "^3.6.3"
+  },
+  "dependencies": {
+    "@types/node": "^12.7.5"
   }
 }
