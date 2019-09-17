@@ -60,16 +60,22 @@ function textToStat(fileName: string, onDoneCallback) {
     stream.on("close", () => { onDoneCallback(frequencies) })
 }
 
-function generateTables(frequencies: Map<string, number>) {
+function generateTables(frequencies: Map<string, number>, {fileName, tableWidth, tableHeight}) {
     console.log("")
     console.log("Statistica litterarum documenti:")
     console.log("--------------------------------")
     console.log("")
 
-    frequencies.forEach((value, key) =>
+    let numberOfChars = 0
+
+    frequencies.forEach((value, key) => {
         console.log(`${key} --> ${value}`)
-    )
+        numberOfChars += value
+    })
+
+    const numberOfCells = tableHeight * tableHeight
+    //const factor = numberOfCells * 
 }
 
 let configuration = parse_args(process.argv)
-textToStat(configuration.fileName, generateTables)
+textToStat(configuration.fileName, frequencies => generateTables(frequencies, configuration))
