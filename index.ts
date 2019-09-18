@@ -36,7 +36,7 @@ function parse_args(args: string[]) {
 }
 
 function textToStat(fileName: string, onDoneCallback) {
-    const charsToSkip = ["\n", "\r", "\t"]
+    const charsToSkip = ["\n", "\r", "\t", "\"", "{", "}", "@"]
 
     const stream = createReadStream(fileName)
     stream.setEncoding("utf-8")
@@ -60,7 +60,7 @@ function textToStat(fileName: string, onDoneCallback) {
     stream.on("close", () => { onDoneCallback(frequencies) })
 }
 
-function generateTables(frequencies: Map<string, number>, {fileName, tableWidth, tableHeight}) {
+function scaleFrequencies(frequencies: Map<string, number>, tableWidth, tableHeight) {
     console.log("")
     console.log("Statistica litterarum documenti:")
     console.log("--------------------------------")
@@ -73,8 +73,66 @@ function generateTables(frequencies: Map<string, number>, {fileName, tableWidth,
         numberOfChars += value
     })
 
-    const numberOfCells = tableHeight * tableHeight
-    //const factor = numberOfCells * 
+    const numberOfCells = tableWidth * tableHeight
+    const scaledFrequencies = new Map<string, number>();
+
+    let totalCellsRequired = 0;
+    let factor = 1.0
+
+    do {
+        totalCellsRequired = 0;
+
+        frequencies.forEach((value, key) => {
+            let cellsRequired = Math.floor(numberOfCells * value / numberOfChars * factor)
+            let newValue = (cellsRequired < 1) ? 1 : cellsRequired
+            scaledFrequencies.set(key, newValue)
+
+            totalCellsRequired += cellsRequired
+
+            console.log(`${key} --> ${newValue}`)
+        })
+
+        factor -= 0.0001
+    } while (totalCellsRequired > numberOfCells)
+
+    return { scaledFrequencies, totalCellsRequired }
+}
+
+function createRandomizerVector({ scaledFrequencies, totalCellsRequired })
+{
+    console.log("")
+    console.log("Statistica correcta litterarum documenti:")
+    console.log("-----------------------------------------")
+    console.log("")
+
+    let randomizerVector = new Array<string>()
+
+    scaledFrequencies.forEach((value, key) => {
+        console.log(`${key} --> ${value}`)
+
+        for (let c = 0; c < value; c++) {
+            randomizerVector.push(key)
+        }
+    })
+
+    console.log()
+    console.log(`${totalCellsRequired} cellulae sunt usae.`)
+    console.log(`Vector ad tabulam creandum est: ${randomizerVector}`)
+
+    return randomizerVector
+}
+
+function createEncryptionTables(randomizerVector, tableWidth, tableHeight) {
+    let encryptionTable = new Map<string, Array<string>>()
+    let decryptionTable = Array<Array<string>>()
+}
+
+function generateTables(frequencies: Map<string, number>, {fileName, tableWidth, tableHeight}) {
+    const result = scaleFrequencies(frequencies, tableWidth, tableHeight)
+    const randomizerVector = createRandomizerVector(result)
+    createEncryptionTables(randomizerVector, tableWidth, tableHeight)
+
+
 }
 
 let configuration = parse_args(process.argv)
