@@ -115,12 +115,13 @@ function createRandomizerVector({ scaledFrequencies, totalCellsRequired })
 
     console.log()
     console.log(`${totalCellsRequired} cellulae sunt usae.`)
-    console.log(`Vector ad tabulam creandum est: ${randomizerVector}`)
+    console.log(`Vector ad tabulam creandum est:`)
+    console.log(`${randomizerVector}`)
 
     return randomizerVector
 }
 
-function coordsToString(x: number, y: number | null): string {
+function coordsToString(x: number, y?: number): string {
     const keys = [
         "0", "1", "2", "3", "4", "5",
         "6", "7", "8", "9", "A", "B",
@@ -130,7 +131,7 @@ function coordsToString(x: number, y: number | null): string {
         "U", "V", "W", "X", "Y", "Z",
     ]
 
-    return (y == null) ? keys[x] : `${keys[y]}${keys[x]}`
+    return (y === undefined) ? keys[x] : `${keys[y]}${keys[x]}`
 }
 
 function createEncryptionTables(randomizerVector: Array<string>, tableWidth, tableHeight) {
@@ -154,12 +155,64 @@ function createEncryptionTables(randomizerVector: Array<string>, tableWidth, tab
             }
         }
     }
+
+    return { encryptionTable, decryptionTable }
+}
+
+function printHorizontalLine(tableWidth: number) {
+    let line = "+---+"
+    for (let i = 0; i < tableWidth; i++) {
+        line += "---+"
+    }
+    console.log(line)
+}
+
+function printTables(encryptionTable: Map<string, Array<string>>, decryptionTable: Array<Array<string>>, tableWidth, tableHeight) {
+    console.log()
+    console.log("Tabula ad litteras cifrandas:")
+    console.log("-----------------------------")
+    console.log()
+
+    encryptionTable.forEach((value, key) => {
+        console.log(`${key} | ${value}`)
+    });
+
+    console.log()
+    console.log("Tabula ad litteras decifrandas:")
+    console.log("-------------------------------")
+    console.log()
+
+    printHorizontalLine(tableWidth)
+
+    let line = "|   |"
+    for (let i = 0; i < tableWidth; i++) {
+        line += ` ${coordsToString(i)} |`
+    }
+    console.log(line)
+
+    printHorizontalLine(tableWidth)
+
+    for (let y = 0; y < tableHeight; y++) {
+        line = `| ${coordsToString(y)} |`
+        for (let x = 0; x < tableWidth; x++) {
+            line += ` ${decryptionTable[y][x]} |`
+        }
+
+        console.log(line)
+    }
+
+    printHorizontalLine(tableWidth)
 }
 
 function generateTables(frequencies: Map<string, number>, {fileName, tableWidth, tableHeight}) {
     const result = scaleFrequencies(frequencies, tableWidth, tableHeight)
     const randomizerVector = createRandomizerVector(result)
-    createEncryptionTables(randomizerVector, tableWidth, tableHeight)
+    const tables = createEncryptionTables(randomizerVector, tableWidth, tableHeight)
+
+    if (tables.encryptionTable.size != result.scaledFrequencies.size)
+        console.error("Creare tabalam ad cifrandum decifrandumque non possum.")
+    else
+        printTables(tables.encryptionTable, tables.decryptionTable, tableWidth, tableHeight)
 }
 
 let configuration = parse_args(process.argv)
