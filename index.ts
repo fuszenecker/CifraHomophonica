@@ -9,8 +9,7 @@ function parse_args(args: string[]) {
     let tableWidth = DEFAULT_TABLE_SIZE
     let tableHeight = DEFAULT_TABLE_SIZE
     
-    switch (process.argv.length)
-    {
+    switch (process.argv.length) {
         case 0:
         case 1:
         case 2:
@@ -41,15 +40,14 @@ function textToStat(fileName: string, onDoneCallback) {
     const stream = createReadStream(fileName)
     stream.setEncoding("utf-8")
 
-    let frequencies = new Map<string, number>()
+    const frequencies = new Map<string, number>()
 
     stream.on("open", listener => {
         console.debug(`Apertum est documentum processandum cuius nomen est ${fileName}`)
     })
 
     stream.on("data", (data: string) => {
-        for (let char of data)
-        {
+        for (let char of data) {
             let upperCaseChar = char.toUpperCase()
 
             if (!charsToSkip.includes(upperCaseChar))
@@ -105,7 +103,7 @@ function createRandomizerVector({ scaledFrequencies, totalCellsRequired })
     console.log("-----------------------------------------")
     console.log("")
 
-    let randomizerVector = new Array<string>()
+    const randomizerVector = new Array<string>()
 
     scaledFrequencies.forEach((value, key) => {
         console.log(`${key} --> ${value}`)
@@ -122,17 +120,46 @@ function createRandomizerVector({ scaledFrequencies, totalCellsRequired })
     return randomizerVector
 }
 
-function createEncryptionTables(randomizerVector, tableWidth, tableHeight) {
-    let encryptionTable = new Map<string, Array<string>>()
-    let decryptionTable = Array<Array<string>>()
+function coordsToString(x: number, y: number | null): string {
+    const keys = [
+        "0", "1", "2", "3", "4", "5",
+        "6", "7", "8", "9", "A", "B",
+        "C", "D", "E", "F", "G", "H",
+        "I", "J", "K", "L", "M", "N",
+        "O", "P", "Q", "R", "S", "T",
+        "U", "V", "W", "X", "Y", "Z",
+    ]
+
+    return (y == null) ? keys[x] : `${keys[y]}${keys[x]}`
+}
+
+function createEncryptionTables(randomizerVector: Array<string>, tableWidth, tableHeight) {
+    const encryptionTable = new Map<string, Array<string>>()
+    const decryptionTable = Array<Array<string>>()
+
+    for (let y = 0; y < tableHeight; y++) {
+        const row = new Array<string>()
+        decryptionTable.push(row)
+
+        for (let x = 0; x < tableWidth; x++) {
+            const char = randomizerVector[Math.floor(Math.random() * randomizerVector.length)];
+            row.push(char)
+
+            if (encryptionTable.has(char)) {
+                encryptionTable.get(char).push(coordsToString(x, y))
+            } else {
+                var array = new Array<string>()
+                array.push(coordsToString(x, y))
+                encryptionTable.set(char, array)
+            }
+        }
+    }
 }
 
 function generateTables(frequencies: Map<string, number>, {fileName, tableWidth, tableHeight}) {
     const result = scaleFrequencies(frequencies, tableWidth, tableHeight)
     const randomizerVector = createRandomizerVector(result)
     createEncryptionTables(randomizerVector, tableWidth, tableHeight)
-
-
 }
 
 let configuration = parse_args(process.argv)
