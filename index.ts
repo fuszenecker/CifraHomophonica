@@ -50,8 +50,12 @@ function textToStat(fileName: string, onDoneCallback) {
         for (let char of data) {
             let upperCaseChar = char.toUpperCase()
 
-            if (!charsToSkip.includes(upperCaseChar))
+            if (!charsToSkip.includes(upperCaseChar)) {
                 frequencies.set(upperCaseChar, (frequencies.has(upperCaseChar) ? frequencies.get(upperCaseChar) : 0) + 1)
+            } else {
+                // console.debug(`Ingrata est littera "${char}".`)
+            }
+
         }
     })
 
@@ -134,27 +138,32 @@ function coordsToString(x: number, y?: number): string {
     return (y === undefined) ? keys[x] : `${keys[y]}${keys[x]}`
 }
 
-function createEncryptionTables(randomizerVector: Array<string>, tableWidth, tableHeight) {
-    const encryptionTable = new Map<string, Array<string>>()
-    const decryptionTable = Array<Array<string>>()
+function createEncryptionTables(randomizerVector: Array<string>, tableWidth: number, tableHeight: number, expectedNumberOfCharacters: number) {
+    let decryptionTable: Array<Array<string>> = null;
+    let encryptionTable: Map<string, Array<string>> = null;
 
-    for (let y = 0; y < tableHeight; y++) {
-        const row = new Array<string>()
-        decryptionTable.push(row)
+    do {
+        encryptionTable = new Map<string, Array<string>>()
+        decryptionTable = Array<Array<string>>()
 
-        for (let x = 0; x < tableWidth; x++) {
-            const char = randomizerVector[Math.floor(Math.random() * randomizerVector.length)];
-            row.push(char)
+        for (let y = 0; y < tableHeight; y++) {
+            const row = new Array<string>()
+            decryptionTable.push(row)
 
-            if (encryptionTable.has(char)) {
-                encryptionTable.get(char).push(coordsToString(x, y))
-            } else {
-                var array = new Array<string>()
-                array.push(coordsToString(x, y))
-                encryptionTable.set(char, array)
+            for (let x = 0; x < tableWidth; x++) {
+                const char = randomizerVector[Math.floor(Math.random() * randomizerVector.length)];
+                row.push(char)
+
+                if (encryptionTable.has(char)) {
+                    encryptionTable.get(char).push(coordsToString(x, y))
+                } else {
+                    var array = new Array<string>()
+                    array.push(coordsToString(x, y))
+                    encryptionTable.set(char, array)
+                }
             }
         }
-    }
+    } while (encryptionTable.size != expectedNumberOfCharacters)
 
     return { encryptionTable, decryptionTable }
 }
@@ -207,12 +216,13 @@ function printTables(encryptionTable: Map<string, Array<string>>, decryptionTabl
 function generateTables(frequencies: Map<string, number>, {fileName, tableWidth, tableHeight}) {
     const result = scaleFrequencies(frequencies, tableWidth, tableHeight)
     const randomizerVector = createRandomizerVector(result)
-    const tables = createEncryptionTables(randomizerVector, tableWidth, tableHeight)
+    const tables = createEncryptionTables(randomizerVector, tableWidth, tableHeight, result.scaledFrequencies.size)
 
-    if (tables.encryptionTable.size != result.scaledFrequencies.size)
-        console.error("Creare tabalam ad cifrandum decifrandumque non possum.")
-    else
+    if (tables.encryptionTable.size != result.scaledFrequencies.size) {
+        console.error(`Creare tabalam ad cifrandum decifrandumque non possum. Numerus litterae: in tabula cifrandi sunt ${tables.encryptionTable.size}, in tabula frequentiae sunt ${result.scaledFrequencies.size}`)
+    } else {
         printTables(tables.encryptionTable, tables.decryptionTable, tableWidth, tableHeight)
+    }
 }
 
 let configuration = parse_args(process.argv)
