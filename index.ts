@@ -2,6 +2,17 @@ import { createReadStream } from "fs";
 
 console.log("Salve, usator! Cifra Homomorphica te salutat.")
 
+const keys = [
+    "0", "1", "2", "3", "4", "5",
+    "6", "7", "8", "9", "A", "B",
+    "C", "D", "E", "F", "G", "H",
+    "I", "J", "K", "L", "M", "N",
+    "O", "P", "Q", "R", "S", "T",
+    "U", "V", "W", "X", "Y", "Z",
+]
+
+const charsToSkip = ["\n", "\r", "\t", "\"", "{", "}", "@", "[", "]", "(", ")", "/"]
+
 function parse_args(args: string[]) {
     const DEFAULT_TABLE_SIZE = 10
 
@@ -31,12 +42,15 @@ function parse_args(args: string[]) {
             break;
     }
 
+    if (tableWidth > keys.length || tableHeight > keys.length) {
+        console.error(`Dimensio tabulae est maior quam ${keys.length}."`)
+        process.exit(200)
+    }
+
     return { fileName, tableWidth, tableHeight };
 }
 
 function textToStat(fileName: string, onDoneCallback) {
-    const charsToSkip = ["\n", "\r", "\t", "\"", "{", "}", "@"]
-
     const stream = createReadStream(fileName)
     stream.setEncoding("utf-8")
 
@@ -52,8 +66,6 @@ function textToStat(fileName: string, onDoneCallback) {
 
             if (!charsToSkip.includes(upperCaseChar)) {
                 frequencies.set(upperCaseChar, (frequencies.has(upperCaseChar) ? frequencies.get(upperCaseChar) : 0) + 1)
-            } else {
-                // console.debug(`Ingrata est littera "${char}".`)
             }
 
         }
@@ -63,15 +75,9 @@ function textToStat(fileName: string, onDoneCallback) {
 }
 
 function scaleFrequencies(frequencies: Map<string, number>, tableWidth, tableHeight) {
-    console.log("")
-    console.log("Statistica litterarum documenti:")
-    console.log("--------------------------------")
-    console.log("")
-
     let numberOfChars = 0
 
     frequencies.forEach((value, key) => {
-        console.log(`${key} --> ${value}`)
         numberOfChars += value
     })
 
@@ -90,11 +96,9 @@ function scaleFrequencies(frequencies: Map<string, number>, tableWidth, tableHei
             scaledFrequencies.set(key, newValue)
 
             totalCellsRequired += cellsRequired
-
-            console.log(`${key} --> ${newValue}`)
         })
 
-        factor -= 0.0001
+        factor -= 0.000001
     } while (totalCellsRequired > numberOfCells)
 
     return { scaledFrequencies, totalCellsRequired }
@@ -102,39 +106,18 @@ function scaleFrequencies(frequencies: Map<string, number>, tableWidth, tableHei
 
 function createRandomizerVector({ scaledFrequencies, totalCellsRequired })
 {
-    console.log("")
-    console.log("Statistica correcta litterarum documenti:")
-    console.log("-----------------------------------------")
-    console.log("")
-
     const randomizerVector = new Array<string>()
 
     scaledFrequencies.forEach((value, key) => {
-        console.log(`${key} --> ${value}`)
-
         for (let c = 0; c < value; c++) {
             randomizerVector.push(key)
         }
     })
 
-    console.log()
-    console.log(`${totalCellsRequired} cellulae sunt usae.`)
-    console.log(`Vector ad tabulam creandum est:`)
-    console.log(`${randomizerVector}`)
-
     return randomizerVector
 }
 
 function coordsToString(x: number, y?: number): string {
-    const keys = [
-        "0", "1", "2", "3", "4", "5",
-        "6", "7", "8", "9", "A", "B",
-        "C", "D", "E", "F", "G", "H",
-        "I", "J", "K", "L", "M", "N",
-        "O", "P", "Q", "R", "S", "T",
-        "U", "V", "W", "X", "Y", "Z",
-    ]
-
     return (y === undefined) ? keys[x] : `${keys[y]}${keys[x]}`
 }
 
@@ -178,8 +161,8 @@ function printHorizontalLine(tableWidth: number) {
 
 function printTables(encryptionTable: Map<string, Array<string>>, decryptionTable: Array<Array<string>>, tableWidth, tableHeight) {
     console.log()
-    console.log("Tabula ad litteras cifrandas:")
-    console.log("-----------------------------")
+    console.log("Tabula ad litteras cifrandas")
+    console.log("----------------------------")
     console.log()
 
     encryptionTable.forEach((value, key) => {
@@ -187,8 +170,8 @@ function printTables(encryptionTable: Map<string, Array<string>>, decryptionTabl
     });
 
     console.log()
-    console.log("Tabula ad litteras decifrandas:")
-    console.log("-------------------------------")
+    console.log("Tabula ad litteras decifrandas")
+    console.log("------------------------------")
     console.log()
 
     printHorizontalLine(tableWidth)
@@ -220,6 +203,7 @@ function generateTables(frequencies: Map<string, number>, {fileName, tableWidth,
 
     if (tables.encryptionTable.size != result.scaledFrequencies.size) {
         console.error(`Creare tabalam ad cifrandum decifrandumque non possum. Numerus litterae: in tabula cifrandi sunt ${tables.encryptionTable.size}, in tabula frequentiae sunt ${result.scaledFrequencies.size}`)
+        process.exit(300)
     } else {
         printTables(tables.encryptionTable, tables.decryptionTable, tableWidth, tableHeight)
     }
