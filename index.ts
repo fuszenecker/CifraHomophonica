@@ -164,9 +164,9 @@ function printTables(encryptionTable: Map<string, Array<string>>, decryptionTabl
     console.log("----------------------------")
     console.log()
 
-    encryptionTable.forEach((value, key) => {
-        console.log(`${key} | ${value}`)
-    });
+    for (let key of [...encryptionTable.keys()].sort()) {
+        console.log(`${key} | ${encryptionTable.get(key)}`)
+    }
 
     console.log()
     console.log("Tabula ad litteras decifrandas")
