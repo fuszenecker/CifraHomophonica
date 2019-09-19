@@ -98,14 +98,13 @@ function scaleFrequencies(frequencies: Map<string, number>, tableWidth, tableHei
             totalCellsRequired += cellsRequired
         })
 
-        factor -= 0.000001
+        factor -= 0.001
     } while (totalCellsRequired > numberOfCells)
 
     return { scaledFrequencies, totalCellsRequired }
 }
 
-function createRandomizerVector({ scaledFrequencies, totalCellsRequired })
-{
+function createRandomizerVector({ scaledFrequencies, totalCellsRequired }) {
     const randomizerVector = new Array<string>()
 
     scaledFrequencies.forEach((value, key) => {
