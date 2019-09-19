@@ -3,12 +3,12 @@ import { createReadStream } from "fs";
 console.log("Salve, usator! Cifra Homomorphica te salutat.")
 
 const keys = [
-    "0", "1", "2", "3", "4", "5",
-    "6", "7", "8", "9", "A", "B",
-    "C", "D", "E", "F", "G", "H",
-    "I", "J", "K", "L", "M", "N",
-    "O", "P", "Q", "R", "S", "T",
-    "U", "V", "W", "X", "Y", "Z",
+    "A", "B", "C", "D", "E", "F",
+    "G", "H", "I", "J", "K", "L",
+    "M", "N", "O", "P", "Q", "R",
+    "S", "T", "U", "V", "W", "X",
+    "Y", "Z", "0", "1", "2", "3",
+    "4", "5", "6", "7", "8", "9", 
 ]
 
 const charsToSkip = ["\n", "\r", "\t", "\"", "{", "}", "@", "[", "]", "(", ")", "/"]
@@ -98,13 +98,15 @@ function scaleFrequencies(frequencies: Map<string, number>, tableWidth, tableHei
             totalCellsRequired += cellsRequired
         })
 
-        factor -= 0.001
+        factor -= 0.0001
     } while (totalCellsRequired > numberOfCells)
 
-    return { scaledFrequencies, totalCellsRequired }
+    console.log(`Qualitas tabularum est: ${totalCellsRequired} ÷ ${numberOfCells} = ${totalCellsRequired / numberOfCells}`)
+
+    return scaledFrequencies
 }
 
-function createRandomizerVector({ scaledFrequencies, totalCellsRequired }) {
+function createRandomizerVector(scaledFrequencies: Map<string, number>) {
     const randomizerVector = new Array<string>()
 
     scaledFrequencies.forEach((value, key) => {
@@ -196,12 +198,12 @@ function printTables(encryptionTable: Map<string, Array<string>>, decryptionTabl
 }
 
 function generateTables(frequencies: Map<string, number>, {fileName, tableWidth, tableHeight}) {
-    const result = scaleFrequencies(frequencies, tableWidth, tableHeight)
-    const randomizerVector = createRandomizerVector(result)
-    const tables = createEncryptionTables(randomizerVector, tableWidth, tableHeight, result.scaledFrequencies.size)
+    const scaledFrequencies = scaleFrequencies(frequencies, tableWidth, tableHeight)
+    const randomizerVector = createRandomizerVector(scaledFrequencies)
+    const tables = createEncryptionTables(randomizerVector, tableWidth, tableHeight, scaledFrequencies.size)
 
-    if (tables.encryptionTable.size != result.scaledFrequencies.size) {
-        console.error(`Creare tabalam ad cifrandum decifrandumque non possum. Numerus litterae: in tabula cifrandi sunt ${tables.encryptionTable.size}, in tabula frequentiae sunt ${result.scaledFrequencies.size}`)
+    if (tables.encryptionTable.size != scaledFrequencies.size) {
+        console.error(`Creare tabalam ad cifrandum decifrandumque non possum. Numerus litterae: in tabula cifrandi sunt ${tables.encryptionTable.size}, in tabula frequentiae sunt ${scaledFrequencies.size}`)
         process.exit(300)
     } else {
         printTables(tables.encryptionTable, tables.decryptionTable, tableWidth, tableHeight)
