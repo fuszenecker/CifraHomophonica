@@ -24,7 +24,7 @@ function parse_args(args: string[]) {
         case 0:
         case 1:
         case 2:
-            console.error("Necesse est dare (ut argumentum primum) nomen eius ducumenti quod basis calculationis frequentiae litterarum sit.")
+            console.error("Nomen illius ducumenti dandum est (ut argumentum primum) quod initium calculationis frequentiae litterarum erit.")
             process.exit(100)
             break;
         case 3:
@@ -43,7 +43,7 @@ function parse_args(args: string[]) {
     }
 
     if (tableWidth > keys.length || tableHeight > keys.length) {
-        console.error(`Dimensio tabulae est maior quam ${keys.length}."`)
+        console.error(`Dimensio tabulae maior est quam ${keys.length}."`)
         process.exit(200)
     }
 
@@ -57,7 +57,7 @@ function textToStat(fileName: string, onDoneCallback) {
     const frequencies = new Map<string, number>()
 
     stream.on("open", listener => {
-        console.debug(`Apertum est documentum processandum cuius nomen est ${fileName}`)
+        console.debug(`Documentum nomine ${fileName} est apertum.`)
     })
 
     stream.on("data", (data: string) => {
@@ -162,8 +162,8 @@ function printHorizontalLine(tableWidth: number) {
 
 function printTables(encryptionTable: Map<string, Array<string>>, decryptionTable: Array<Array<string>>, tableWidth, tableHeight) {
     console.log()
-    console.log("Tabula ad litteras cifrandas")
-    console.log("----------------------------")
+    console.log("Tabula ad litteras occultandas")
+    console.log("------------------------------")
     console.log()
 
     for (let key of [...encryptionTable.keys()].sort()) {
@@ -171,8 +171,8 @@ function printTables(encryptionTable: Map<string, Array<string>>, decryptionTabl
     }
 
     console.log()
-    console.log("Tabula ad litteras decifrandas")
-    console.log("------------------------------")
+    console.log("Tabula ad litteras detegendas")
+    console.log("-----------------------------")
     console.log()
 
     printHorizontalLine(tableWidth)
